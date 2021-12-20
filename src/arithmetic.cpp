@@ -94,7 +94,7 @@ void Arithmetic::term_to_polish()
 				continue;
 			}
 
-			if (i > 0 && lexemes[i].get_operation() == '_' && lexemes[i].get_operation() == '_')
+			if (i > 0 && lexemes[i].get_operation() == '_')
 				operations.push(lexemes[i]);
 			else 
 			{
@@ -161,7 +161,7 @@ bool brackets(const string& s)
 		{
 			count++;
 			flag = false;
-			if (i < stringSize && s[i + 1] == '+' || s[i + 1] == '-' || s[i + 1] == '*' || s[i + 1] == '/')
+			if (i < stringSize && s[i + 1] == '+' || s[i + 1] == '*' || s[i + 1] == '/')
 				throw "Operation after bracket";
 			
 			if (i > 0 && s[i - 1] >= '0' && s[i] <= '9')
