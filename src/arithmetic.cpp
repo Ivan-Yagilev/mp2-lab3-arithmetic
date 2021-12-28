@@ -268,6 +268,11 @@ bool symbols_check(const string& str)
 }
 bool input(const string& str)
 {
+	for (size_t i = 1; i < str.length(); i++)
+	{
+		if (str[i - 1] <= 'z' && str[i - 1] >= 'a' && str[i] >= '0' && str[i] <= '9')
+			return false;
+	}
 	if ((str[0] == '+' || str[0] == '*' || str[0] == '/') || (str.length() == 1 && (str[0] == '.' || str[0] == '-')))
 		return false;
 	else if (str[str.length() - 1] == '+' || str[str.length() - 1] == '-' || str[str.length() - 1] == '*' || str[str.length() - 1] == '/')
