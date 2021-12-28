@@ -4,78 +4,69 @@
 #include <gtest.h>
 
 
-TEST(Stack, can_create_stack)
+TEST(Stack, create_stack_positive)
 {
-	ASSERT_NO_THROW(Stack<int> s);
+	ASSERT_NO_THROW(Stack<int> st);
 }
-TEST(Stack, cant_create_stack_with_null_size)
+TEST(Stack, create_stack_null_size_negative)
 {
-	ASSERT_ANY_THROW(Stack<int> s(0));
+	ASSERT_ANY_THROW(Stack<int> st(0));
 }
-TEST(Stack, can_create_copied_stack)
+TEST(Stack, push_element_positive)
 {
-	Stack<int> s;
-	ASSERT_NO_THROW(Stack<int> s1);
+	Stack<int> st;
+	ASSERT_NO_THROW(st.push(6));
 }
-TEST(Stack, can_push_element_in_stack)
+TEST(Stack, push_element_in_full_stack_positive)
 {
-	Stack<int> s;
-	ASSERT_NO_THROW(s.push(5));
+	Stack<int> st(1);
+	st.push(2); 
+	st.push(7);
+	EXPECT_EQ(7, st.get_end());
 }
-TEST(Stack, can_push_element_in_full_stack)
+TEST(Stack, empty_positive)
 {
-	Stack<int> s(2);
-	s.push(8); s.push(2);
-	s.push(5);
-	EXPECT_EQ(5, s.get_top());
+	Stack<int> st;
+	EXPECT_EQ(true, st.empty());
 }
-TEST(Stack, can_check_on_emptiness_for_empty_stack)
+TEST(Stack, empty_negative)
 {
-	Stack<int> s;
-	EXPECT_EQ(true, s.empty());
+	Stack<int> st;
+	st.push(7);
+	EXPECT_EQ(false, st.empty());
 }
-TEST(Stack, can_check_on_emptiness_for_not_empty_stack)
+TEST(Stack, full_positive)
 {
-	Stack<int> s;
-	s.push(3);
-	EXPECT_EQ(false, s.empty());
+	Stack<int> st(1);
+	st.push(7);
+	EXPECT_EQ(true, st.full());
 }
-TEST(Stack, can_check_on_full_for_full_stack)
+TEST(Stack, full_negative)
 {
-	Stack<int> s(2);
-	s.push(1); s.push(2);
-	EXPECT_EQ(true, s.full());
+	Stack<int> st;
+	EXPECT_EQ(false, st.full());
 }
-TEST(Stack, can_check_on_full_for_not_full_stack)
+TEST(Stack, get_end_positive)
 {
-	Stack<int> s;
-	EXPECT_EQ(false, s.full());
+	Stack<int> st(1);
+	st.push(7);
+	EXPECT_EQ(7, st.get_end());
+	EXPECT_EQ(false, st.empty());
 }
-TEST(Stack, can_get_top_element_without_deletion)
+TEST(Stack, pop_element_positive)
 {
-	Stack<int> s(1);
-	const int expVal = 10;
-	bool expEmp = false;
-	s.push(expVal);
-	EXPECT_EQ(expVal, s.get_top());
-	EXPECT_EQ(expEmp, s.empty());
+	Stack<int> st;
+	st.push(7);
+	EXPECT_EQ(7, st.pop());
+	EXPECT_EQ(true, st.empty());
 }
-TEST(Stack, can_pop_element)
+TEST(Stack, pop_from_empty_stack_negative)
 {
-	Stack<int> s;
-	const int expVal = -9;
-	bool expEmp = true;
-	s.push(expVal);
-	EXPECT_EQ(expVal, s.pop());
-	EXPECT_EQ(expEmp, s.empty());
+	Stack<int> st;
+	ASSERT_ANY_THROW(st.pop());
 }
-TEST(Stack, cant_pop_element_from_empty_stack)
+TEST(Stack, get_end_from_empty_stack_negative)
 {
-	Stack<int> s;
-	ASSERT_ANY_THROW(s.pop());
-}
-TEST(Stack, cant_get_top_element_from_empty_stack)
-{
-	Stack<int> s;
-	ASSERT_ANY_THROW(s.get_top());
+	Stack<int> st;
+	ASSERT_ANY_THROW(st.get_end());
 }

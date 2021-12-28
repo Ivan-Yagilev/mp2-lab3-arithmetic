@@ -10,78 +10,97 @@
 
 template <class T>
 class Stack {
-
 private:
 	int stack_size;
-	int top;
-	T* data;
+	int end;
+	T* stack_ptr;
 public:
-	Stack() 
-	{ 
-		stack_size = 100; 
-		data = new T[stack_size];
-		top = -1; 
-	}
-	Stack(int _size)
+	Stack()
 	{
-		if (!_size) 
-			throw "Null size";
-		stack_size = _size; 
-		data = new T[stack_size]; 
-		top = -1;
+		stack_size = 50;
+		stack_ptr = new T[stack_size];
+		end = -1;
+	}
+	Stack(const int tmp_size)
+	{
+		if (tmp_size == 0)
+			throw "null size";
+		stack_size = tmp_size;
+		stack_ptr = new T[stack_size];
+		end = -1;
+	}
+	~Stack()
+	{
+		delete[] stack_ptr;
+		stack_ptr = 0;
+		end = -1;
 	}
 
-	// - просмотр верхнего элемента (без удаления)
-	T get_top()
+	// вставка элемента
+	void push(const T& el)
 	{
-		if (empty())
-			throw "Stack is empty";
-		return data[top];
-	}
-	// - получение количества элементов в стеке
-	T get_size()
-	{
-		return top + 1;
-	}
-	// - извлечение элемента
-	T pop()
-	{
-		if (!empty())
-			return data[top--];
-		else 
-			throw "Stack is empty";
-	}
-	// - вставка элемента
-	void push(const T& x)
-	{
-		if (full()) 
+		if (full())
 		{
 			stack_size = (stack_size + 1) * 2;
-			T* tmp = new T[stack_size];
-			for (int i = 0; i < top + 1; i++)
-				tmp[i] = data[i];
-			
-			delete[] data;
-			data = tmp;
+			T* tmp_ptr = new T[stack_size];
+			for (size_t i = 0; i < end + 1; i++)
+				tmp_ptr[i] = stack_ptr[i];
+			delete[] stack_ptr;
+			stack_ptr = tmp_ptr;
 		}
-		top++;
-		data[top] = x;
+		end++;
+		stack_ptr[end] = el;
 	}
-	// - очистка стека
+
+	// извлечение элемента
+	T pop()
+	{
+		if (empty())
+			throw "empty";
+		else 
+		{
+			stack_size--;
+			return stack_ptr[end--];
+		}
+	}
+
+	// очистка стека
 	void clear()
 	{
-		top = -1;
-		delete[] data;
-		data = new T[stack_size];
+		end = -1;
+		delete[] stack_ptr;
+		stack_ptr = new T[stack_ptr];
 	}
-	// - проверка на пустоту
+
+	// просмотр верхнего элемента без удаления
+	T get_end()
+	{
+		if (empty())
+			throw "empty";
+		return stack_ptr[end];
+	}
+
+	// получение размера стека
+	T get_stack_size()
+	{
+		return end + 1;
+	}
+
+	// проверка на пустой стек
 	bool empty()
 	{
-		return top == -1;
+		if (end == -1)
+			return true;
+		else
+			return false;
 	}
-	// - проверка на полный стек
+
+	// проверка на полный стек
 	bool full()
 	{
-		return top >= stack_size - 1;
+		if (end >= stack_size - 1)
+			return true;
+		else
+			return false;
 	}
 };

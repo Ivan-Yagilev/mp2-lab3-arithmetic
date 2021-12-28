@@ -7,72 +7,77 @@
 
 using std::string;
 using std::vector;
+using std::cout;
+using std::cin;
+using std::endl;
 
-const string allowed_lexemes = "0123456789.()+-/*";
+const string oper = "()+*/.-";
+const string number = "0123456789abcdefghijklmnopqrstuvwxyz";
 
 class Lexeme
 {
 private:
 	char operation;
 	double value;
-	bool type;
+	int type;
 public:
 	Lexeme() = default;
-	Lexeme(const double& _value) 
+	Lexeme(const double& tmp_value)
 	{
-		value = _value;
+		value = tmp_value;
 		type = true;
 	}
-	Lexeme(const char& _operation) 
+	Lexeme(const char& tmp_operation)
 	{
-		operation = _operation;
+		operation = tmp_operation;
 		type = false;
 	}
-	void print_lexeme() 
+
+	void print_lexeme()
 	{
 		if (type)
-			std::cout << value << " ";
-
+			cout << value;
 		else
-			std::cout << operation << " ";
+			cout << operation;
+	}
 
+	double get_value()
+	{
+		return value;
 	}
-	double get_value() 
-	{ 
-		return value; 
-	}
-	char get_operation() 
-	{ 
+
+	char get_operation()
+	{
 		return operation;
 	}
-	bool get_type() 
-	{ 
+
+	bool get_type()
+	{
 		return type;
 	}
 
 	int priority();
 };
 
-class Arithmetic
+class Solver
 {
 private:
-	vector<Lexeme> lexemes;
+	vector <Lexeme> lex;
 public:
-	Arithmetic() = default;
-
 	void string_to_lexeme(string& expression);
-	void term_to_polish();
-	double calculate();
-	void print() 
+	void lexeme_to_reverse();
+	void print()
 	{
-		for (size_t i = 0; i < lexemes.size(); i++) 
-		{
-			Lexeme lexeme(lexemes[i]);
-			lexeme.print_lexeme();
-		}
+		for (size_t i = 0; i < lex.size(); i++)
+			lex[i].print_lexeme();
 	}
+	double calculation();
 };
 
-bool brackets(const string& s);
-bool symbols(const string& s);
-bool validation(const string& s);
+
+
+bool validation(const string& str);
+bool input(const string& str);
+bool symbols_check(const string& str);
+bool brackets_check(const string& str);
+bool points_operation_check(const string& str);

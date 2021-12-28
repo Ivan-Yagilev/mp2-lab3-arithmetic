@@ -1,194 +1,258 @@
 ﻿// реализация функций и классов для вычисления арифметических выражений
 
 #include "../include/arithmetic.h"
-void Arithmetic::string_to_lexeme(string& expression)
-{
-	string str_number;
-	double number;
-	size_t i = 0;
-	while (i < expression.length()) 
-	{
-		// - операции
-		if (expression[i] == '+' || expression[i] == '*' || expression[i] == '/') 
-		{ 
-			Lexeme operation(expression[i]);
-			lexemes.push_back(operation);
-			i++;
-		}
-		else if (expression[i] == '-') 
-		{
-			if (i == 0) 
-			{
-				Lexeme unary_minus('_');
-				lexemes.push_back(unary_minus);
-				i++;
-				continue;
-			}
-			if (i > 0) 
-			{
-				if (lexemes[i - 1].get_operation() != ')' && lexemes[i - 1].get_type() == false) 
-				{
-					Lexeme unary_minus('_');
-					lexemes.push_back(unary_minus);
-					i++;
-				}
-				else 
-				{
-					Lexeme minus('-');
-					lexemes.push_back(minus);
-					i++;
-				}
-			}
-		}
-		// - значения
-		else if (expression[i] >= '0' && expression[i] <= '9' || (expression[i] == '.')) 
-		{ 
-			int point_counter = 0;
-			while (expression[i] >= '0' && expression[i] <= '9' || (expression[i] == '.')) 
-			{
-				str_number += expression[i];
-				i++;
-				if (expression[i] == '.')
-					point_counter++;
+#include <typeinfo>
 
-				if (point_counter > 1)
-					throw "Too much points";
-			}
-			number = stof(str_number);
-			Lexeme number(number);
-			lexemes.push_back(number);
-			str_number.clear();
-		}
-		else if (expression[i] == ')' || expression[i] == '(') 
+int Lexeme::priority()
+{
+	if (operation == '(' || operation == ')')
+		return 0;
+	else if (operation == '+' || operation == '-')
+		return 1;
+	else if (operation == '*' || operation == '/')
+		return 2;
+	else if (operation == '_')
+		return 3;
+}
+
+void Solver::string_to_lexeme(string& expression)
+{
+	for (size_t i = 0; i < expression.length(); i++)
+	{
+		// operations
+		for (size_t j = 0; j < oper.length()-2; j++)
 		{
-			Lexeme bracket(expression[i]);
-			lexemes.push_back(bracket);
-			i++;
+			if (expression[i] == oper[j])
+			{
+				Lexeme l(expression[i]);
+				lex.push_back(l);
+			}
+		}
+		
+		if (expression[i] == '-')
+		{
+			if (i == 0)
+			{
+				Lexeme l('_');
+				lex.push_back(l);
+			}
+			else
+			{
+				if (expression[i - 1] != ')' && (expression[i - 1] == '+' || expression[i - 1] == '-' || expression[i - 1] == '*' || expression[i - 1] == '/' || expression[i - 1] == '('))
+				{
+					Lexeme l('_');
+					lex.push_back(l);
+				}
+				else
+				{
+					Lexeme l('-');
+					lex.push_back(l);
+				}
+			}
+		}
+
+		// variables
+		for (size_t j = 10; j <= number.length(); j++)
+		{
+			if (expression[i] == number[j])
+			{
+				if (i > 0 && expression[i-1] >= '0' && expression[i-1] <= '9')
+				{
+					Lexeme m('*');
+					lex.push_back(m);
+				}
+				Lexeme l(expression[i]);
+				lex.push_back(l);
+			}
+		}
+
+		// values
+		if ((expression[i] >= '0' && expression[i] <= '9') || expression[i] == '.')
+		{
+			int point_count = 0;
+			string str_number;
+			int k = 0;
+			if ((i+k) <= expression.length()) {
+				while ((expression[i + k] >= '0' && expression[i + k] <= '9') || expression[i + k] == '.')
+				{
+					str_number += expression[i + k];
+					k++;
+					if (expression[i + k] == '.')
+					{
+						point_count++;
+						if (point_count > 1)
+							throw "many point error";
+					}
+				}
+			}
+			i = i + k - 1;
+			double numb = stof(str_number);
+			Lexeme l(numb);
+			lex.push_back(l);
 		}
 	}
 }
-void Arithmetic::term_to_polish()
+
+void Solver::lexeme_to_reverse()
 {
-	unsigned size = lexemes.size();
-	vector <Lexeme> postfix;
-	Stack <Lexeme> operations;
-	for (unsigned i = 0; i < size; i++) 
+	vector <Lexeme> reverse;
+	Stack <Lexeme> op(lex.size());
+
+	for (size_t i = 0; i < lex.size(); i++)
 	{
-		// - если число
-		if (lexemes[i].get_type() == true) 
-			postfix.push_back(lexemes[i]);
-		// - если операция
-		else 
+		if (lex[i].get_type() == true)
+			reverse.push_back(lex[i]);
+		else
 		{
-			if (lexemes[i].get_operation() == '(') 
+			bool flag = false;
+			for (size_t j = 10; j <= number.length(); j++)
 			{
-				operations.push(lexemes[i]);
+				if (lex[i].get_operation() == number[j])
+				{
+					flag = true;
+					cout << "Enter the value of the ";
+					lex[i].print_lexeme();
+					cout << endl;
+					double variable;
+					cin >> variable;
+					reverse.push_back(variable);
+					break;
+				}
+			}
+
+			if (lex[i].get_operation() == '(')
+			{
+				op.push(lex[i]);
 				continue;
 			}
-			else if (lexemes[i].get_operation() == ')') 
+			else if (lex[i].get_operation() == ')')
 			{
-				while (operations.get_top().get_operation() != '(')
-					postfix.push_back(operations.pop());
-
-				operations.pop(); // извлечение (
+				while (op.get_end().get_operation() != '(')
+					reverse.push_back(op.pop());
+				op.pop();
 				continue;
 			}
 
-			if (i > 0 && lexemes[i].get_operation() == '_')
-				operations.push(lexemes[i]);
-			else 
+			if (i > 0 && lex[i].get_operation() == '_')
+				op.push(lex[i]);
+			else
 			{
-				while (!operations.empty() && operations.get_top().priority() >= lexemes[i].priority())
-					postfix.push_back(operations.pop());
-
-				operations.push(lexemes[i]);
+				while (!op.empty() && op.get_end().priority() >= lex[i].priority())
+					reverse.push_back(op.pop());
+				if (!flag)
+					op.push(lex[i]);
 			}
 		}
 	}
-	while (!operations.empty())
-		postfix.push_back(operations.pop());
-
-	lexemes = postfix;
+	while (!op.empty())
+		reverse.push_back(op.pop());
+	lex = reverse;
 }
-double Arithmetic::calculate()
+
+double Solver::calculation()
 {
 	Stack <Lexeme> stack;
-	Lexeme termOperand1, termOperand2;
+	Lexeme lex_operand1;
+	Lexeme lex_operand2;
 	double operand1, operand2, res;
-	for (unsigned i = 0; i < lexemes.size(); i++) 
+	for (size_t i = 0; i < lex.size(); i++)
 	{
-		if (lexemes[i].get_type() == true)
-			stack.push(lexemes[i].get_value());
-
-		else if (lexemes[i].get_operation() == '_') 
+		if (lex[i].get_type() == true)
+			stack.push(lex[i].get_value());
+		else if (lex[i].get_operation() == '_')
 		{
 			res = (-1) * stack.pop().get_value();
 			stack.push(res);
-			continue;
 		}
-		else 
+		else
 		{
-			termOperand2 = stack.pop();
-			termOperand1 = stack.pop();
-			operand1 = termOperand1.get_value();
-			operand2 = termOperand2.get_value();
-			if (lexemes[i].get_operation() == '+')
-				res = operand1 + operand2;
-			if (lexemes[i].get_operation() == '-')
+			lex_operand2 = stack.pop();
+			lex_operand1 = stack.pop();
+			operand1 = lex_operand1.get_value();
+			operand2 = lex_operand2.get_value();
+			if (lex[i].get_operation() == '-')
 				res = operand1 - operand2;
-			if (lexemes[i].get_operation() == '*')
+			if (lex[i].get_operation() == '+')
+				res = operand1 + operand2;
+			if (lex[i].get_operation() == '*')
 				res = operand1 * operand2;
-			if (lexemes[i].get_operation() == '/') 
+			if (lex[i].get_operation() == '/')
 			{
-				if (operand2 == 0) 
-					throw "Division by the zero";
+				if (operand2 == 0)
+					throw "division error";
 				res = operand1 / operand2;
 			}
-
 			stack.push(res);
 		}
 	}
 	Lexeme result = stack.pop();
 	return result.get_value();
 }
-bool brackets(const string& s)
+
+bool validation(const string& str)
 {
-	bool flag = true;
-	int count = 0, stringSize = s.length();
-	for (int i = 0; i < stringSize; i++) 
+	if (brackets_check(str) == false)
+		throw "brackets error";
+	else if (symbols_check(str) == false)
+		throw "symbols error";
+	else if (input(str) == false)
+		throw "input error";
+	else if (points_operation_check(str) == false)
+		throw "point error";
+	else
+		return true;
+}
+bool brackets_check(const string& str)
+{
+	if (str[0] == ')' || str[str.length() - 1] == '(')
+		return false;
+	int count = 0;
+	for (size_t i = 0; i < str.length(); i++)
 	{
-		if (s[i] == '(') 
+		if (str[i] == '(')
 		{
+			if (i < str.length())
+				for (size_t j = 0; j < oper.length()-1; j++)
+					if (str[i+1] == oper[j])
+						throw "operation after braket";
+					
+			if (i > 0)
+				for (size_t j = 0; j < number.length(); j++)
+					if (str[i-1] == number[j])
+						throw "number before bracket";
 			count++;
-			flag = false;
-			if (i < stringSize && s[i + 1] == '+' || s[i + 1] == '*' || s[i + 1] == '/')
-				throw "Operation after bracket";
-			
-			if (i > 0 && s[i - 1] >= '0' && s[i] <= '9')
-				throw "Number before opening bracket";
 		}
-		if (s[i] == ')') 
+		if (str[i] == ')')
 		{
+			if (i < str.length())
+				for (size_t j = 0; j < number.length(); j++)
+					if (str[i + 1] == number[j])
+						throw "number after braket";
+
+			if (i > 0)
+				for (size_t j = 0; j < oper.length(); j++)
+					if (str[i - 1] == oper[j])
+						throw "operation before bracket";
 			count--;
-			flag = true;
 		}
 	}
-	return (flag == true && count == 0);
+	if (count == 0)
+		return true;
 }
-bool symbols(const string& s)
+bool symbols_check(const string& str)
 {
 	bool flag = false;
-	int stringSize = s.length(), allowedTermsSize = allowed_lexemes.length();
-	for (int i = 0; i < stringSize; i++) 
+	for (size_t i = 0; i < str.length(); i++)
 	{
-		for (int j = 0; j < allowedTermsSize; j++) 
+		string concatenation = oper + number;
+		for (size_t j = 0; j < concatenation.length(); j++) 
 		{
-			if (s[i] != allowed_lexemes[j]) 
+			if (str[i] != concatenation[j])
 			{
 				flag = false;
 				continue;
 			}
-			else 
+			else
 			{
 				flag = true;
 				break;
@@ -196,44 +260,27 @@ bool symbols(const string& s)
 		}
 		if (flag)
 			continue;
-		else return false;
+		else
+			return false;
+				
+	}
+	return flag;
+}
+bool input(const string& str)
+{
+	if ((str[0] == '+' || str[0] == '*' || str[0] == '/') || (str.length() == 1 && (str[0] == '.' || str[0] == '-')))
+		return false;
+	else if (str[str.length() - 1] == '+' || str[str.length() - 1] == '-' || str[str.length() - 1] == '*' || str[str.length() - 1] == '/')
+		return false;
+	else
+		return true;
+}
+bool points_operation_check(const string& str)
+{
+	for (size_t i = 1; i < str.length(); i++)
+	{
+		if (str[i] == '.' && (str[i - 1] == '(' || str[i - 1] == ')' || str[i - 1] == '+' || str[i - 1] == '-' || str[i - 1] == '*' || str[i - 1] == '/'))
+			return false;
 	}
 	return true;
-}
-bool validation(const string& s)
-{
-	if (!brackets(s))
-		throw "Wrong brackets";
-	
-	else if (!symbols(s))
-		throw "Can be used: 0123456789.()+-/* without space";
-	
-	else if (s[0] == '+' || s[0] == '*' || s[0] == '/')
-		throw "Operation cannot be at the beginning";
-	
-	else if (s[s.length() - 1] == '+' || s[s.length() - 1] == '-' || s[s.length() - 1] == '*' || s[s.length() - 1] == '/')
-		throw "Operation cannot be at the end";
-	
-	else return true;
-}
-int Lexeme::priority()
-{
-	if (operation == '(' || operation == ')') 
-	{ 
-		return 0; 
-	}
-	else if (operation == '+' || operation == '-') 
-	{ 
-		return 1;
-	}
-	else if (operation == '*' || operation == '/') 
-	{ 
-		return 2; 
-	}
-	else if (operation == '_') 
-	{ 
-		return 3; 
-	}
-	else 
-		throw "Problems";
 }

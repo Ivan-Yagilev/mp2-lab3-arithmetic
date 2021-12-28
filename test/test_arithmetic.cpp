@@ -3,168 +3,189 @@
 #include <gtest.h>
 #include <../include/arithmetic.h>
 
-#define EPS 1e-5
+#define infel 1e-5
 
-TEST(arithmetic, can_create_arithmetic)
+TEST(arithmetic, create_solver_positive)
 {
-	ASSERT_NO_THROW(Arithmetic a);
+	ASSERT_NO_THROW(Solver l);
 }
-TEST(arithmetic, simple_sum_1)
+TEST(arithmetic, sum1)
 {
-	Arithmetic a;
-	string s;
-	s = "6+3";
-	a.string_to_lexeme(s);
-	a.term_to_polish();
-	EXPECT_EQ(9.0, a.calculate());
+	Solver l;
+	string str;
+	str = "6+3";
+	l.string_to_lexeme(str);
+	l.lexeme_to_reverse();
+	EXPECT_EQ(9.0, l.calculation());
 }
-TEST(arithmetic, simple_sum_2)
+TEST(arithmetic, sum2)
 {
-	Arithmetic a;
-	string s;
-	s = "-9+11+7";
-	a.string_to_lexeme(s);
-	a.term_to_polish();
-	EXPECT_EQ(9.0, a.calculate());
+	Solver l;
+	string str;
+	str = "-9+11+7";
+	l.string_to_lexeme(str);
+	l.lexeme_to_reverse();
+	EXPECT_EQ(9.0, l.calculation());
 }
-TEST(arithmetic, all_op)
+TEST(arithmetic, last_point_sum)
 {
-	Arithmetic a;
-	string s;
-	s = "-7.4+2.2/4.0+2.6*6.9";
-	a.string_to_lexeme(s);
-	a.term_to_polish();
-	EXPECT_NEAR(11.09, a.calculate(), EPS);
+	Solver l;
+	string str;
+	str = "4.2+3.";
+	l.string_to_lexeme(str);
+	l.lexeme_to_reverse();
+	EXPECT_NEAR(7.2, l.calculation(), infel);
 }
-TEST(arithmetic, simple_brackets_sequence)
+TEST(arithmetic, operations)
 {
-	Arithmetic a;
-	string s;
-	s = "8.5*(5+7)";
-	a.string_to_lexeme(s);
-	a.term_to_polish();
-	EXPECT_EQ(102, a.calculate());
+	Solver l;
+	string str;
+	str = "-7.4+2.2/4.0+2.6*6.9";
+	l.string_to_lexeme(str);
+	l.lexeme_to_reverse();
+	EXPECT_NEAR(11.09, l.calculation(), infel);
+}
+TEST(arithmetic, brackets_expression)
+{
+	Solver l;
+	string str;
+	str = "8.5*(5+7)";
+	l.string_to_lexeme(str);
+	l.lexeme_to_reverse();
+	EXPECT_EQ(102, l.calculation());
 }
 TEST(arithmetic, unary_minus_without_brackets)
 {
-	Arithmetic a;
-	string s;
-	s = "5+-5";
-	a.string_to_lexeme(s);
-	a.term_to_polish();
-	EXPECT_EQ(0, a.calculate());
+	Solver l;
+	string str;
+	str = "5+-5";
+	l.string_to_lexeme(str);
+	l.lexeme_to_reverse();
+	EXPECT_EQ(0, l.calculation());
 }
-TEST(arithmetic, unary_minus_with_division)
+TEST(arithmetic, unary_minus_division)
 {
-	Arithmetic a;
-	string s;
-	s = "5/-5";
-	a.string_to_lexeme(s);
-	a.term_to_polish();
-	EXPECT_EQ(-1.0, a.calculate());
+	Solver l;
+	string str;
+	str = "5/-5";
+	l.string_to_lexeme(str);
+	l.lexeme_to_reverse();
+	EXPECT_EQ(-1.0, l.calculation());
 }
-TEST(arithmetic, unary_minus_with_division_with_brackets)
+TEST(arithmetic, unary_minus_after_operation)
 {
-	Arithmetic a;
-	string s;
-	s = "5/-(2+2)";
-	a.string_to_lexeme(s);
-	a.term_to_polish();
-	EXPECT_EQ(-1.25, a.calculate());
+	Solver l;
+	string str = "12*-12";
+	l.string_to_lexeme(str);
+	l.lexeme_to_reverse();
+	EXPECT_EQ(-144, l.calculation());
 }
-TEST(arithmetic, unary_minus_with_brackets_more_complex)
+TEST(arithmetic, unary_minus_after_opening_bracket)
 {
-	Arithmetic a;
-	string s;
-	s = "5+(2-3/6-3)";
-	a.string_to_lexeme(s);
-	a.term_to_polish();
-	EXPECT_EQ(3.5, a.calculate());
+	Solver l;
+	string str = "12*(-12)";
+	l.string_to_lexeme(str);
+	l.lexeme_to_reverse();
+	EXPECT_EQ(-144, l.calculation());
 }
-TEST(arithmetic, lots_of_unary_minus)
+TEST(arithmetic, unary_minus_division_brackets)
 {
-	Arithmetic a;
-	string s;
-	s = "5-------5";
-	a.string_to_lexeme(s);
-	a.term_to_polish();
-	EXPECT_EQ(0.0, a.calculate());
+	Solver l;
+	string str;
+	str = "5/-(2+2)";
+	l.string_to_lexeme(str);
+	l.lexeme_to_reverse();
+	EXPECT_EQ(-1.25, l.calculation());
+}
+TEST(arithmetic, unary_minus_brackets)
+{
+	Solver l;
+	string str;
+	str = "5+(2-3/6-3)";
+	l.string_to_lexeme(str);
+	l.lexeme_to_reverse();
+	EXPECT_EQ(3.5, l.calculation());
+}
+TEST(arithmetic, many_unary_minus)
+{
+	Solver l;
+	string str;
+	str = "5-------5";
+	l.string_to_lexeme(str);
+	l.lexeme_to_reverse();
+	EXPECT_EQ(0.0, l.calculation());
 }
 
 TEST(arithmetic, unary_minus_before_brackets)
 {
-	Arithmetic a;
-	string s;
-	s = "-(5+5)";
-	a.string_to_lexeme(s);
-	a.term_to_polish();
-	EXPECT_EQ(-10.0, a.calculate());
+	Solver l;
+	string str;
+	str = "-(5+5)";
+	l.string_to_lexeme(str);
+	l.lexeme_to_reverse();
+	EXPECT_EQ(-10.0, l.calculation());
 }
-TEST(arithmetic, throw_when_first_character_is_closing_bracket)
+TEST(arithmetic, first_closing_bracket_negative)
 {
-	Arithmetic a;
-	string s;
-	s = ")5+2";
-	a.string_to_lexeme(s);
-	ASSERT_ANY_THROW(a.term_to_polish());
+	Solver l;
+	string str;
+	str = ")5+2";
+	l.string_to_lexeme(str);
+	ASSERT_ANY_THROW(l.lexeme_to_reverse());
 }
-TEST(arithmetic, throw_when_first_character_is_operation)
+TEST(arithmetic, first_operation_negative)
 {
-	string s = "/(5+5)";
-	ASSERT_ANY_THROW(validation(s));
+	string str = "/(5+5)";
+	ASSERT_ANY_THROW(validation(str));
 }
-TEST(arithmetic, throw_when_opening_bracket_goes_after_number)
+TEST(arithmetic, operation_before_point_negative)
 {
-	string s = "5(4+5)";
-	ASSERT_ANY_THROW(validation(s));
+	string str = "5/.4";
+	ASSERT_ANY_THROW(validation(str));
 }
-TEST(arithmetic, throw_wrong_amounts_of_brackets)
+TEST(arithmetic, opening_bracket_after_number_negative)
 {
-	Arithmetic a;
-	string s;
-	s = "(5+2))";
-	a.string_to_lexeme(s);
-	ASSERT_ANY_THROW(validation(s));
+	string str = "5(4+5)";
+	ASSERT_ANY_THROW(validation(str));
 }
-TEST(arithmetic, throw_operation_after_opening_bracket)
+TEST(arithmetic, brackets_negative)
 {
-	Arithmetic a;
-	string s;
-	s = "2+5-(*5)";
-	a.string_to_lexeme(s);
-	ASSERT_ANY_THROW(validation(s));
+	string str = "(5+2))";
+	ASSERT_ANY_THROW(validation(str));
 }
-TEST(arithmetic, no_throw_unary_minus_after_opening_bracket)
+TEST(arithmetic, operation_after_opening_bracket_negative)
 {
-	Arithmetic a;
-	string s;
-	s = "3+1*-4";
-	a.string_to_lexeme(s);
-	ASSERT_NO_THROW(a.term_to_polish());
+	string str = "2+5-(*5)";
+	ASSERT_ANY_THROW(validation(str));
 }
-TEST(arithmetic, throw_last_character_is_operation)
+TEST(arithmetic, unary_minus_after_opening_bracket_positive)
 {
-	string s = "5+5*";
-	ASSERT_ANY_THROW(validation(s));
+	Solver l;
+	string str = "3+1*(-4)";
+	l.string_to_lexeme(str);
+	ASSERT_NO_THROW(l.lexeme_to_reverse());
 }
-TEST(arithmetic, throw_last_character_is_opening_bracket)
+TEST(arithmetic, last_operation_negative)
 {
-	string s = "5+5*(";
-	ASSERT_ANY_THROW(validation(s));
+	string str = "5+5*";
+	ASSERT_ANY_THROW(validation(str));
 }
-TEST(arithmetic, division_by_zero)
+TEST(arithmetic, last_opening_bracket_negative)
 {
-	Arithmetic a;
-	string s;
-	s = "5.5/0.0";
-	a.string_to_lexeme(s);
-	a.term_to_polish();
-	ASSERT_ANY_THROW(a.calculate());
+	string str = "5+5*(";
+	ASSERT_ANY_THROW(validation(str));
 }
-TEST(arithmetic, too_many_dots)
+TEST(arithmetic, division_by_zero_negative)
 {
-	Arithmetic a;
-	string s;
-	s = "5/5.5.5";
-	ASSERT_ANY_THROW(a.string_to_lexeme(s));
+	Solver l;
+	string str = "5.5/0.0";
+	l.string_to_lexeme(str);
+	l.lexeme_to_reverse();
+	ASSERT_ANY_THROW(l.calculation());
+}
+TEST(arithmetic, many_points_neagtive)
+{
+	Solver l;
+	string str = "5/5.5.5";
+	ASSERT_ANY_THROW(l.string_to_lexeme(str));
 }

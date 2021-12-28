@@ -7,20 +7,26 @@ using namespace std;
 int main()
 {
     string str;
-    for (size_t i = 0; i < 100; i++)
+    int c = 1;
+    while (c == 1)
     {
-        try {
+        try {     
             cout << "Original expression:" << endl;
-            getline(cin, str);
+            cin >> str;        
             validation(str);
-            Arithmetic res;
-            res.string_to_lexeme(str);
+            Solver r;
+            r.string_to_lexeme(str);
+            cout << "Lexeme:" << endl;
+            r.print();
             cout << endl << "Reverse Polish notation:" << endl;
-            res.term_to_polish();
-            res.print();
+            r.lexeme_to_reverse();
+            r.print();
             cout << endl << endl;
-            cout << "Result: " << endl << res.calculate();
+            cout << "Result: " << endl << r.calculation();
             cout << endl << endl;
+
+            cout << "1. Continue" << endl << "2. Exit" << endl;
+            cin >> c;
         }
 
         catch (char* ch)
