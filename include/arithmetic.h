@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include "stack.h"
+#include <sstream>
 
 using std::string;
 using std::vector;
@@ -74,6 +75,13 @@ public:
 	double calculation();
 };
 
+class Variables
+{
+public:
+	Variables() = default;
+	vector<char> key;
+	vector<double> var;
+};
 
 
 bool validation(const string& str);

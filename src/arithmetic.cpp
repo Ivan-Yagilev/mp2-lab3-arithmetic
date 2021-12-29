@@ -1,7 +1,6 @@
 ﻿// реализация функций и классов для вычисления арифметических выражений
 
 #include "../include/arithmetic.h"
-#include <typeinfo>
 
 int Lexeme::priority()
 {
@@ -56,7 +55,7 @@ void Solver::string_to_lexeme(string& expression)
 		{
 			if (expression[i] == number[j])
 			{
-				if (i > 0 && expression[i-1] >= '0' && expression[i-1] <= '9')
+				if (i > 0 && ((expression[i-1] >= '0' && expression[i-1] <= '9') || (expression[i - 1] >= 'a' && expression[i - 1] <= 'z')))
 				{
 					Lexeme m('*');
 					lex.push_back(m);
@@ -97,6 +96,49 @@ void Solver::lexeme_to_reverse()
 {
 	vector <Lexeme> reverse;
 	Stack <Lexeme> op(lex.size());
+	Variables v;
+	for (size_t i = 0; i < lex.size(); i++)
+	{
+		if (lex[i].get_type() == false && lex[i].get_operation() <= 'z' && lex[i].get_operation() >= 'a')
+		{
+			bool flag2 = false;
+			for (size_t j = 0; j < v.key.size(); j++)
+			{
+				if (lex[i].get_operation() == v.key[j])
+					flag2 = true;
+			}
+			if (!flag2)
+			{
+				v.key.push_back(lex[i].get_operation());
+				cout << "Enter the value of the ";
+				lex[i].print_lexeme();
+				cout << endl;
+				double numb;
+				while (true)
+				{
+					cin >> numb;
+					std::stringstream ss;
+					ss << numb;
+					string str_numb;
+					ss >> str_numb;
+					bool f = false;
+					for (size_t j = 0; j <= str_numb.length(); j++)
+					{
+						if (strchr("0123456789.", str_numb[j]) == nullptr)
+						{
+							cout << "incorrect input" << endl;
+							f = true;
+							break;
+						}
+					}
+					if (f)
+						exit(1);
+					break;
+				}
+				v.var.push_back(numb);
+			}
+		}
+	}
 
 	for (size_t i = 0; i < lex.size(); i++)
 	{
@@ -105,18 +147,15 @@ void Solver::lexeme_to_reverse()
 		else
 		{
 			bool flag = false;
-			for (size_t j = 10; j <= number.length(); j++)
+			if (lex[i].get_operation() <= 'z' && lex[i].get_operation() >= 'a')
 			{
-				if (lex[i].get_operation() == number[j])
+				flag = true;
+				for (size_t j = 0; j < v.key.size(); j++)
 				{
-					flag = true;
-					cout << "Enter the value of the ";
-					lex[i].print_lexeme();
-					cout << endl;
-					double variable;
-					cin >> variable;
-					reverse.push_back(variable);
-					break;
+					if (lex[i].get_operation() == v.key[j])
+					{
+						reverse.push_back(v.var[j]);
+					}
 				}
 			}
 
