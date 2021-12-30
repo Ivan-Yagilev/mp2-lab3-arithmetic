@@ -311,6 +311,8 @@ bool input(const string& str)
 	{
 		if (str[i - 1] <= 'z' && str[i - 1] >= 'a' && str[i] >= '0' && str[i] <= '9')
 			return false;
+		if ((str[i - 1] == '+' || str[i - 1] == '-' || str[i - 1] == '*' || str[i - 1] == '/') && (str[i] == '+' || str[i] == '*' || str[i] == '/'))
+			return false;
 	}
 	if ((str[0] == '+' || str[0] == '*' || str[0] == '/') || (str.length() == 1 && (str[0] == '.' || str[0] == '-')))
 		return false;
